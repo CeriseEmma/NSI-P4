@@ -52,13 +52,12 @@ def coup_possible(grille, colonne):
     renvois True s'il est possible de jouer dans la colonne col, False sinon.
     Il est possible de jouer dans la colenne col, s'il existe une case avec la valeur 0 dans cette colonne.
     '''
-    colonne = colonne - 1
+#    colonne = colonne - 1
     #Je ne sais pas pourquoi mais mes indices commencent à -1 donc j'ai due rajouter ça.
-    for i in range(5, -1, -1):
+    for i in range(6):
         if grille[i][colonne] == 0:  # Parcours la colonne choisie par indice croissant
             return True, i  # Renvoie le plus petit indice de la ligne ou il est possible de jouer.
-        else:
-            return False, 0  # Indique si la colonne est pleinne et qu'il y ai impossible de jouer.
+    return False, 0  # Indique si la colonne est pleinne et qu'il y ai impossible de jouer.
 
 
 def jouer(grille, j):
@@ -71,12 +70,13 @@ def jouer(grille, j):
     Si j vaut 1 la première case vide de la colonne prendra la valeur B
     Si j vaut 2 la première case vide de la colonne col prendra la valeur V
     '''
-    colonne = int(input("Dans quelle colonne voulez vous jouez? : ")) - 1
+    colonne = int(input("Dans quelle colonne voulez vous jouez? : ")) -1
     possible, ligne = coup_possible(grille, colonne)
-    if possible == True and j == j_1:
-        grille[ligne][colonne] = 'B'
-    elif possible == True and j == j_2:
-        grille[ligne][colonne] = 'V'
+    if possible:
+        if j == 1:
+            grille[ligne][colonne] = 'B'
+        if j == 2:
+            grille[ligne][colonne] = 'V'
     else:
         print("Vous ne pouvez pas jouer ici")
     return grille
@@ -89,7 +89,7 @@ j_1, j_2 = deux_joueur()
 while True:
     affiche_grille(grille)
     print(f"{j_1} a vous de jouer!")
-    grille = jouer(grille, j_1)
+    grille = jouer(grille, 1)
     affiche_grille(grille)
     print(f"{j_2} a vous de jouer!")
-    grille = jouer(grille, j_2)
+    grille = jouer(grille, 2)

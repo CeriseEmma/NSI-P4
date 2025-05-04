@@ -2,6 +2,39 @@
 
 Git est un système de contrôle de version qui vous permet de suivre les modifications de vos fichiers au fil du temps. Voici un guide pédagogique des commandes essentielles pour débuter avec Git.
 
+## Routine quotidienne
+
+**Des modifications ont-alles été faites par d'autres contributeurs ?**
+
+```bash
+git fetch --dry-run
+```
+Cette commande simule un téléchargement **sans rien modifier** dans ton dépôt local.
+Si cette commande **ne retourne rien**, cela signifie que **ton dépôt est à jour** par rapport au dépôt distant.
+En revanche, s’il y a des **modifications en attente** (commits, branches…), Git te les liste sans les appliquer.
+
+**Synchroniser ton dépôt local avec celui distant (si des modifications ont été faites et que tu es OK**
+
+```bash
+git pull origin nom-de-branche
+```
+Récupère les dernières modifications depuis le dépôt distant. C'est comme mettre à jour votre livre avec les nouvelles pages écrites par d'autres.
+
+**Lorsque tu as fini de développer, il faut mettre à jour le dépôt distant**
+
+```bash
+git status
+git commit -a -m "Indique ce qui a été mis à jour"
+git push
+```
+
+La première commande liste tous les fichiers qui ont été modifiés depuis la dernière synchronisation.
+La seconde ajoute tous les fichiers modifiés (ou crées) dans la liste des export → il est préférable de dire pourquoi
+La dernière synchronise les 2 dépôts
+
+
+---
+
 ## Configuration initiale
 
 ```bash

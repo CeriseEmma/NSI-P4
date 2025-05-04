@@ -4,11 +4,7 @@
 
 ### 1.1 Contexte et objectifs
 
-Ce projet s'inscrit dans le cadre pédagogique de la classe de Première Scientifique, visant à développer un jeu de Puissance 4 complet en utilisant le langage de programmation Python. Ce jeu de stratégie classique, accessible et populaire, constitue un excellent support pour mettre en pratique les concepts fondamentaux de programmation tout en créant une application interactive et ludique.
-
 L'objectif principal est de concevoir et réaliser une application fonctionnelle offrant une expérience de jeu agréable avec une interface graphique épurée mais efficace. Le programme devra implémenter fidèlement les règles traditionnelles du Puissance 4 et proposer deux modes de jeu distincts : une confrontation entre deux joueurs humains et un mode où le joueur affronte l'ordinateur.
-
-Ce projet permettra aux élèves de consolider leurs compétences en algorithmique, en programmation orientée objet, en gestion d'événements et en développement d'interfaces graphiques simples. Il constituera également une première approche des concepts de développement de jeux vidéo, depuis la gestion des états de jeu jusqu'à l'implémentation des mécaniques de base.
 
 ## 2. Spécifications fonctionnelles
 

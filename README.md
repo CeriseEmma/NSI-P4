@@ -1,6 +1,6 @@
 # PROJET NSI PUISSANCE 4
 
-## 1. Description générale du projet
+## 1. Description générale du projet Puissance 4
 
 ### 1.1 Contexte et objectifs
 

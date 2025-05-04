@@ -71,6 +71,11 @@ def jouer(grille, j):
     Si j vaut 2 la première case vide de la colonne col prendra la valeur V
     '''
     colonne = int(input("Dans quelle colonne voulez vous jouez? : ")) -1
+
+    # Input à tester pour que le joueur ne sorte pas du cadre de la grille
+    # 1 -> 7 donc il faut éliminer les valeurs inférieures à 1 et celles
+    # supérieures à 7
+
     possible, ligne = coup_possible(grille, colonne)
     if possible:
         if j == 1:

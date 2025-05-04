@@ -111,7 +111,3 @@ Retire un fichier de la zone de préparation (après git add, avant git commit).
 git revert HEAD
 ```
 Crée un nouveau commit qui annule les modifications du dernier commit.
-
-## Astuce pour débutants
-
-Essayez de faire des commits fréquents avec des messages clairs. Pensez à chaque commit comme à une étape logique dans l'évolution de votre projet. Une bonne pratique est de commencer chaque journée par un `git pull` et de la terminer par un `git push` si vous travaillez en collaboration.

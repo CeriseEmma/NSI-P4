@@ -33,6 +33,8 @@ La seconde ajoute tous les fichiers modifiés (ou crées) dans la liste des expo
 La dernière synchronise les 2 dépôts
 
 
+TOTO
+
 ---
 
 ## Configuration initiale

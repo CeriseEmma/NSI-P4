@@ -2,6 +2,12 @@
 
 Git est un système de contrôle de version qui vous permet de suivre les modifications de vos fichiers au fil du temps. Voici un guide pédagogique des commandes essentielles pour débuter avec Git.
 
+
+Vidéo à regarder pour comprende GIT :
+
+- http://youtube.com/watch?v=X3KCX99I2pQ
+- https://www.youtube.com/watch?v=FDjJA4OJcto
+
 ## Routine quotidienne
 
 **Des modifications ont-alles été faites par d'autres contributeurs ?**

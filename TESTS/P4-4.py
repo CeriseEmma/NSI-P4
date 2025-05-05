@@ -21,7 +21,6 @@ def affiche_grille(grille):
     Utilise des caractères Unicode et des couleurs ANSI si disponibles.
     """
     # Couleurs ANSI (si le terminal les supporte)
-    ROUGE = '\033[91m'
     JAUNE = '\033[93m'
     BLEU = '\033[94m'
     RESET = '\033[0m'
@@ -68,33 +67,6 @@ def coup_possible(grille, colonne):
         if grille[i][colonne] == 0:
             return True, i
     return False, 0
-
-
-def jouer(grille, j, j_nom):
-    """
-    Joue un coup du joueur j dans la colonne choisie.
-    Renvoie la grille mise à jour et un booléen indiquant si le coup a été joué.
-    """
-    while True:
-        try:
-            colonne = int(input(f"{j_nom}, dans quelle colonne voulez-vous jouer? (1-7) : ")) - 1
-
-            # Vérification que la colonne est valide
-            if colonne < 0 or colonne > 6:
-                print("Erreur: Veuillez entrer un nombre entre 1 et 7.")
-                continue
-
-            possible, ligne = coup_possible(grille, colonne)
-            if possible:
-                if j == 1:
-                    grille[ligne][colonne] = 'B'
-                else:
-                    grille[ligne][colonne] = 'V'
-                return grille, True
-            else:
-                print("Cette colonne est pleine. Veuillez choisir une autre colonne.")
-        except ValueError:
-            print("Erreur: Veuillez entrer un nombre valide.")
 
 
 def verifier_victoire(grille, symbole):

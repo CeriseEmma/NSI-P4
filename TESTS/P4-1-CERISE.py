@@ -98,3 +98,4 @@ while True:
     affiche_grille(grille)
     print(f"{j_2} a vous de jouer!")
     grille = jouer(grille, 2)
+

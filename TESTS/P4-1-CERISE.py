@@ -61,7 +61,7 @@ def coup_possible(grille, colonne):
     return False, None  # Indique si la colonne est pleinne et qu'il y ai impossible de jouer.
 
 
-def jouer(grille, j):
+def jouer(grille, joueur):
     '''
     Fonction jouer(grille, j, colonne):
     Fonction qui joue un coup du joueur j dans la colonne col de la grille. Arguments:
@@ -138,13 +138,13 @@ def partie_deux_joueurs():
 
 
 def ordinateur_1():
-    while True
-    nb_colonne = randint(1,7)
-    if coup_possible(grille, nb_colonne) == True:
-        jouer_ordi(grille, nb_colonne)
+    while True:
+        nb_colonne = randint(1,7)
+        if coup_possible(grille, nb_colonne) == True:
+            jouer_ordi(grille, nb_colonne)
         break
 
-def partie_facile()
+def partie_facile():
     grille = grille_vide()
     joueur_1 = {'nom': demander_nom(1), 'pion': 'O'}
     joueur_2 = {'nom': 'Ordinateur', 'pion': 'X'}
@@ -154,9 +154,9 @@ def partie_facile()
     while True:
         affiche_grille(grille)
         joueur_actuel = joueurs[tour % 2]
-        if joueur_actuel == joueur_1
+        if joueur_actuel == joueur_1:
             jouer(grille, joueur_actuel)
-        if joueur_actuel == joueur_2
+        if joueur_actuel == joueur_2:
             jouer_ordi(grille, joueur_actuel)
         if verif_victoire(grille, joueur_actuel['pion']):
             affiche_grille(grille)

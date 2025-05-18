@@ -31,7 +31,7 @@ def grille_vide():
     global grille
     grille = []  # Création du tableau global
     for i in range(6):
-        tab = []  # Création des 6 sous tableau qui serviront à afficher les différentes lignes du tableau
+        tab = []  # Création des 6 sous tableaux qui serviront à afficher les différentes lignes du tableau
         for j in range(7):
             tab.append(0)  # Chaque case de chaque ligne prend la valeur 0
         grille.append(tab)
@@ -53,7 +53,7 @@ def affiche_grille(grille):
     for i in range(5, -1, -1):
         print(f"{i + 1}|", end="")
         for j in range(7):  # Parcourt de 6 à 0 (Décroissant).
-            # Cette inversion facilite la gestion des pions pour les fonctions futurs
+            # Cette inversion facilite la gestion des pions pour les fonctions futures
             val = grille[i][j]
             print(f"{val if val != 0 else ' '}|", end="")
         print()
@@ -64,23 +64,22 @@ def affiche_grille(grille):
 def coup_possible(grille, colonne):
     '''
     détermine s'il est possible de jouer dans la colonne col
-    Prend en argumment la grille, tableau de 7x6, avec la position des pions des joueurs et un entier,
-    le numméro de colonne entre 0 et 6
-    renvois True s'il est possible de jouer dans la colonne col, False sinon.
-    Il est possible de jouer dans la colenne col, s'il existe une case avec la valeur 0 dans cette colonne.
+    Prend en argument la grille, tableau de 7x6, avec la position des pions des joueurs et un entier,
+    le numéro de colonne entre 0 et 6
+    renvoie True s'il est possible de jouer dans la colonne col, False sinon.
+    Il est possible de jouer dans la colonne, s'il existe une case avec la valeur 0 dans cette colonne.
     '''
-#    colonne = colonne - 1
-    #Je ne sais pas pourquoi mais mes indices commencent à -1 donc j'ai due rajouter ça.
+
     for i in range(6):
-        if grille[i][colonne] == 0:  # Parcours la colonne choisie par indice croissant
+        if grille[i][colonne] == 0:  # Parcourt la colonne choisie par indice croissant
             return True, i  # Renvoie le plus petit indice de la ligne ou il est possible de jouer.
-    return False, None  # Indique si la colonne est pleinne et qu'il y ai impossible de jouer.
+    return False, None  # Indique si la colonne est pleine et qu'il est impossible d'y jouer.
 
 
 def jouer(grille, joueur):
     '''
     Fonction jouer(grille, j, colonne):
-    Fonction qui joue un coup du joueur j dans la colonne col de la grille. Arguments:
+    Fonction qui joue un coup du joueur j dans la colonne de la grille. Arguments:
     grille est la grille de 7 x 6 avec les pions des joueurs
     j est un entier qui a la valeur 1 ou 2 suivant le joueur.
     colonne est un entier entre 1 et 7 et désigne une colonne non pleine de la grille.
@@ -241,7 +240,7 @@ def verif_match_nul(grille):
 
 def partie_deux_joueurs():
     '''
-    Fontion qui assemble les autres fonction (grille vide, afficher la grille, jouer ou encore victoire)
+    Fontion qui assemble les autres fonctions (grille vide, afficher la grille, jouer ou encore victoire)
     pour pouvoir jouer contre un autre joueur
     '''
     grille = grille_vide()

@@ -1,0 +1,321 @@
+1. Importation des bibliothèques
+python
+import pygame  # Bibliothèque pour créer l'interface graphique
+import sys     # Bibliothèque pour les fonctionnalités système (comme quitter)
+import random  # Bibliothèque pour générer des nombres aléatoires
+pygame: La bibliothèque principale pour gérer les graphismes, les entrées et le son
+
+sys: Utilisé principalement pour quitter proprement le programme
+
+random: Pour générer des choix aléatoires (utilisé par l'IA facile)
+
+2. Initialisation de Pygame
+python
+pygame.init()
+Initialise tous les modules pygame nécessaires. Obligatoire avant toute utilisation de pygame.
+
+3. Constantes du jeu
+python
+SCREEN_WIDTH = 1100    # Largeur de la fenêtre
+SCREEN_HEIGHT = 700    # Hauteur de la fenêtre
+GRID_COLS = 7          # Nombre de colonnes dans la grille de jeu
+GRID_ROWS = 6          # Nombre de lignes dans la grille de jeu
+CELL_SIZE = 80         # Taille d'une cellule de la grille en pixels
+GRID_OFFSET_X = (SCREEN_WIDTH - GRID_COLS * CELL_SIZE) // 2  # Position X de la grille pour la centrer
+GRID_OFFSET_Y = 150    # Position Y de la grille
+RADIUS = CELL_SIZE // 2 - 5  # Rayon des jetons dans la grille
+Toutes ces constantes définissent la géométrie du jeu:
+
+Dimensions de l'écran
+
+Taille de la grille (7 colonnes × 6 lignes comme le jeu standard)
+
+Calcul des positions pour centrer la grille
+
+Taille des jetons (légèrement plus petits que les cellules)
+
+4. Définition des couleurs
+python
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (0, 100, 255)
+RED = (255, 50, 50)
+YELLOW = (255, 255, 0)
+GREEN = (50, 200, 50)
+LIGHT_BLUE = (100, 200, 255)
+DARK_BLUE = (0, 50, 150)
+Les couleurs sont définies en RGB (Red, Green, Blue) avec des valeurs entre 0 et 255.
+
+5. Polices de texte
+python
+font = pygame.font.SysFont('Arial', 32)        # Police standard
+large_font = pygame.font.SysFont('Arial', 48)  # Police plus grande
+title_font = pygame.font.SysFont('Arial', 64)  # Police pour les titres
+Trois tailles de polices pour différents usages dans l'interface.
+
+6. Initialisation de la fenêtre
+python
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Puissance 4")  # Titre de la fenêtre
+Crée la fenêtre principale avec les dimensions définies et lui donne un titre.
+
+7. Classe Button
+python
+class Button:
+    """Classe pour créer des boutons interactifs"""
+    def __init__(self, x, y, width, height, text, color, hover_color):
+        # Initialisation d'un bouton avec ses propriétés
+        self.rect = pygame.Rect(x, y, width, height)  # Rectangle du bouton
+        self.text = text               # Texte du bouton
+        self.color = color            # Couleur normale
+        self.hover_color = hover_color # Couleur quand la souris est dessus
+        self.is_hovered = False       # État de survol
+Cette classe permet de créer des boutons cliquables avec:
+
+Une position et une taille
+
+Un texte
+
+Deux couleurs (normale et survol)
+
+Un état de survol
+
+Méthodes de la classe Button
+draw()
+python
+def draw(self, surface):
+    """Dessine le bouton sur la surface donnée"""
+    # Choisir la couleur en fonction de l'état de survol
+    color = self.hover_color if self.is_hovered else self.color
+    # Dessiner le rectangle du bouton
+    pygame.draw.rect(surface, color, self.rect, border_radius=10)
+    # Dessiner la bordure du bouton
+    pygame.draw.rect(surface, BLACK, self.rect, 2, border_radius=10)
+
+    # Créer et positionner le texte du bouton
+    text_surf = font.render(self.text, True, BLACK)
+    text_rect = text_surf.get_rect(center=self.rect.center)
+    surface.blit(text_surf, text_rect)
+Dessine le bouton avec:
+
+Un rectangle arrondi
+
+Une bordure noire
+
+Le texte centré
+
+check_hover()
+python
+def check_hover(self, pos):
+    """Vérifie si la souris survole le bouton"""
+    self.is_hovered = self.rect.collidepoint(pos)
+Met à jour l'état de survol en fonction de la position de la souris.
+
+is_clicked()
+python
+def is_clicked(self, pos, event):
+    """Vérifie si le bouton a été cliqué"""
+    return event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(pos)
+Retourne True si le bouton a été cliqué (clic souris dans le rectangle).
+
+8. Classe Game (principale)
+python
+class Game:
+    """Classe principale du jeu"""
+    def __init__(self):
+        self.reset_game()
+La classe principale qui gère toute la logique du jeu.
+
+Méthodes principales de la classe Game
+reset_game()
+python
+def reset_game(self):
+    """Réinitialise le jeu à son état initial"""
+    self.grid = [[0 for _ in range(GRID_COLS)] for _ in range(GRID_ROWS)]  # Grille vide
+    self.state = "menu"    # État initial: menu
+    self.mode = None       # Mode de jeu (1: 2 joueurs, 2: facile, 3: difficile)
+    self.players = []      # Liste des joueurs
+    self.current_player = 0 # Index du joueur actuel
+    self.winner = None     # Gagnant de la partie
+    self.message = ""      # Message de fin de partie
+    self.buttons = []      # Liste des boutons
+    self.animation = None  # Animation (non utilisé ici)
+    self.create_menu_buttons()  # Crée les boutons du menu
+Réinitialise toutes les variables du jeu:
+
+Grille vide (0 = vide, 1 = joueur 1, 2 = joueur 2)
+
+État initial "menu"
+
+Pas de mode sélectionné
+
+Liste vide de joueurs
+
+etc.
+
+create_menu_buttons()
+python
+def create_menu_buttons(self):
+    """Crée les boutons pour le menu principal"""
+    button_width = 400    # Largeur des boutons
+    button_height = 60   # Hauteur des boutons
+    start_y = 200        # Position Y de départ
+    spacing = 15         # Espacement entre boutons
+
+    # Options du menu
+    options = [
+        ("1. Jouer contre un autre joueur", 1),
+        ("2. Jouer contre l'ordinateur (facile)", 2),
+        ("3. Jouer contre l'ordinateur (difficile)", 3),
+        ("4. Règles du jeu", 4),
+        ("5. Quitter", 5)
+    ]
+
+    self.buttons = []
+    # Création de chaque bouton
+    for i, (text, value) in enumerate(options):
+        y = start_y + i * (button_height + spacing)
+        btn = Button(
+            (SCREEN_WIDTH - button_width) // 2,
+            y,
+            button_width,
+            button_height,
+            text,
+            LIGHT_BLUE,
+            GREEN
+        )
+        btn.value = value  # Stocke la valeur associée au bouton
+        self.buttons.append(btn)
+Crée les boutons du menu principal avec:
+
+5 options (2 joueurs, IA facile, IA difficile, règles, quitter)
+
+Boutons centrés horizontalement
+
+Espacement régulier verticalement
+
+Méthodes de dessin (draw_*)
+python
+def draw_menu(self):
+def draw_rules(self):
+def draw_grid(self):
+def draw_game(self):
+def draw_end(self):
+def draw(self):
+Toutes ces méthodes gèrent l'affichage des différents écrans:
+
+Menu principal
+
+Règles du jeu
+
+Grille de jeu
+
+Écran de jeu complet
+
+Écran de fin
+
+Méthode draw() principale qui appelle les autres en fonction de l'état
+
+Logique du jeu
+python
+def is_valid_move(self, col):
+def make_move(self, col):
+def check_win(self, player_id):
+def is_board_full(self):
+Méthodes pour la logique du jeu:
+
+Vérifier si un coup est valide
+
+Placer un jeton dans une colonne
+
+Vérifier si un joueur a gagné
+
+Vérifier si la grille est pleine (match nul)
+
+Intelligence Artificielle
+python
+def computer_move_easy(self):
+def computer_move_hard(self):
+Deux niveaux d'IA:
+
+Facile: choix aléatoire parmi les colonnes valides
+
+Difficile: essaie de gagner, bloque le joueur, sinon choix aléatoire
+
+Gestion des parties
+python
+def start_two_player_game(self):
+def start_computer_game(self, difficulty):
+def computer_turn(self):
+Méthodes pour:
+
+Démarrer une partie à 2 joueurs
+
+Démarrer une partie contre l'IA
+
+Gérer le tour de l'ordinateur
+
+Gestion des clics
+python
+def handle_click(self, pos):
+Gère tous les clics de souris en fonction de l'état actuel du jeu (menu, règles, jeu, fin)
+
+9. Boucle principale
+python
+def run(self):
+    """Boucle principale du jeu"""
+    clock = pygame.time.Clock()
+    running = True
+
+    while running:
+        mouse_pos = pygame.mouse.get_pos()  # Position de la souris
+
+        # Gestion des événements
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                self.handle_click(mouse_pos)
+            elif event.type == pygame.USEREVENT:
+                pygame.time.set_timer(pygame.USEREVENT, 0)  # Désactive le timer
+                self.computer_turn()
+
+        # Vérifie le survol des boutons
+        for button in self.buttons:
+            button.check_hover(mouse_pos)
+
+        # Dessine l'écran approprié
+        self.draw()
+        clock.tick(60)  # 60 FPS
+
+    pygame.quit()
+    sys.exit()
+La boucle principale qui:
+
+Gère les événements (clic, fermeture)
+
+Met à jour l'affichage
+
+Limite à 60 FPS
+
+Quitte proprement quand nécessaire
+
+10. Lancement du jeu
+python
+if __name__ == "__main__":
+    # Crée et lance le jeu
+    game = Game()
+    game.run()
+Crée une instance du jeu et lance la boucle principale.
+
+Ce code est bien structuré avec:
+
+Une séparation claire entre interface et logique
+
+Des états de jeu bien définis (menu, règles, jeu, fin)
+
+Une IA avec deux niveaux de difficulté
+
+Une gestion propre des entrées utilisateur
+
+Un affichage clair et coloré

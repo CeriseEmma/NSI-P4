@@ -1,0 +1,588 @@
+1. Importation des bibliothèques
+python
+Copier
+Modifier
+import pygame  # Bibliothèque pour créer l'interface graphique
+import pygame : permet d’utiliser toutes les fonctionnalités de la bibliothèque Pygame (dessins, fenêtres, sons, etc.).
+
+# : tout ce qui suit est un commentaire, il n’est pas lu par Python.
+
+python
+Copier
+Modifier
+import sys  # Bibliothèque pour les fonctionnalités système (comme quitter)
+sys.exit() est souvent utilisé pour fermer proprement un programme.
+
+python
+Copier
+Modifier
+import random  # Bibliothèque pour générer des nombres aléatoires
+Permet, par exemple, à l’ordinateur de choisir une colonne au hasard.
+
+2. Initialisation de Pygame
+python
+Copier
+Modifier
+pygame.init()
+Initialise tous les modules de Pygame (affichage, son, etc.). Obligatoire avant d'utiliser Pygame.
+
+3. Constantes pour l'interface graphique
+python
+Copier
+Modifier
+SCREEN_WIDTH = 1100
+SCREEN_HEIGHT = 700
+Dimensions de la fenêtre de jeu en pixels.
+
+python
+Copier
+Modifier
+GRID_COLS = 7
+GRID_ROWS = 6
+Taille de la grille (7 colonnes × 6 lignes, comme dans le vrai Puissance 4).
+
+python
+Copier
+Modifier
+CELL_SIZE = 80
+Chaque case de la grille mesure 80 pixels de côté.
+
+python
+Copier
+Modifier
+GRID_OFFSET_X = (SCREEN_WIDTH - GRID_COLS * CELL_SIZE) // 2
+Décale la grille horizontalement pour la centrer sur l'écran.
+
+// signifie une division entière (on garde le chiffre sans virgule).
+
+python
+Copier
+Modifier
+GRID_OFFSET_Y = 150
+Décalage vertical de la grille pour qu'elle ne soit pas collée en haut de l'écran.
+
+python
+Copier
+Modifier
+RADIUS = CELL_SIZE // 2 - 5
+Rayon des cercles qui représentent les jetons. On prend la moitié de la cellule, moins 5 pixels pour avoir un petit espace autour.
+
+4. Définition des couleurs (en RGB)
+python
+Copier
+Modifier
+WHITE = (255, 255, 255)  # Blanc
+BLACK = (0, 0, 0)        # Noir
+BLUE = (0, 100, 255)     # Bleu de fond de la grille
+RED = (255, 50, 50)      # Rouge (joueur 1)
+YELLOW = (255, 255, 0)   # Jaune (joueur 2)
+GREEN = (50, 200, 50)    # Vert (survol d’un bouton)
+LIGHT_BLUE = (100, 200, 255)
+DARK_BLUE = (0, 50, 150)
+Chaque couleur est représentée par un tuple de 3 nombres : (rouge, vert, bleu).
+
+5. Définition des polices de texte
+python
+Copier
+Modifier
+font = pygame.font.SysFont('Arial', 32)
+Crée une police Arial de taille 32 pixels pour afficher du texte.
+
+python
+Copier
+Modifier
+large_font = pygame.font.SysFont('Arial', 48)
+title_font = pygame.font.SysFont('Arial', 64)
+Plus la taille est grande, plus le texte est grand. large_font et title_font sont utilisés pour les titres et les messages.
+
+6. Création de la fenêtre de jeu
+python
+Copier
+Modifier
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+Crée la fenêtre principale avec les dimensions données.
+
+python
+Copier
+Modifier
+pygame.display.set_caption("Puissance 4")
+Titre affiché en haut de la fenêtre.
+
+7. Classe Button – pour gérer les boutons cliquables
+python
+Copier
+Modifier
+class Button:
+Crée une nouvelle classe pour les boutons.
+
+python
+Copier
+Modifier
+    def __init__(self, x, y, width, height, text, color, hover_color):
+Le constructeur : appelé quand on crée un bouton.
+
+x, y : position du bouton.
+
+width, height : largeur et hauteur.
+
+text : texte à afficher.
+
+color, hover_color : couleur normale et couleur quand la souris est dessus.
+
+python
+Copier
+Modifier
+        self.rect = pygame.Rect(x, y, width, height)
+Crée un rectangle pour délimiter la zone du bouton.
+
+python
+Copier
+Modifier
+        self.text = text
+        self.color = color
+        self.hover_color = hover_color
+        self.is_hovered = False
+Stocke les informations dans l’objet.
+
+python
+Copier
+Modifier
+    def draw(self, surface):
+Dessine le bouton sur une surface (généralement l’écran).
+
+python
+Copier
+Modifier
+        color = self.hover_color if self.is_hovered else self.color
+Change la couleur si la souris est dessus.
+
+python
+Copier
+Modifier
+        pygame.draw.rect(surface, color, self.rect, border_radius=10)
+        pygame.draw.rect(surface, BLACK, self.rect, 2, border_radius=10)
+Dessine le rectangle du bouton, puis une bordure noire.
+
+python
+Copier
+Modifier
+        text_surf = font.render(self.text, True, BLACK)
+        text_rect = text_surf.get_rect(center=self.rect.center)
+        surface.blit(text_surf, text_rect)
+Affiche le texte centré dans le bouton.
+
+python
+Copier
+Modifier
+    def check_hover(self, pos):
+Vérifie si la souris est sur le bouton.
+
+python
+Copier
+Modifier
+        self.is_hovered = self.rect.collidepoint(pos)
+collidepoint vérifie si un point (comme la position de la souris) est dans le rectangle.
+
+python
+Copier
+Modifier
+    def is_clicked(self, pos, event):
+Vérifie si le bouton a été cliqué avec la souris.
+
+python
+Copier
+Modifier
+        return event.type == pygame.MOUSEBUTTONDOWN and self.rect.collidepoint(pos)
+Renvoie True si un clic a eu lieu à l’intérieur du bouton.
+
+8. Classe Game – logique principale du jeu
+python
+Copier
+Modifier
+class Game:
+Déclare une classe appelée Game pour gérer tout ce qui concerne une partie de Puissance 4 (grille, joueurs, IA, etc.).
+
+8.1. Constructeur de la classe Game
+python
+Copier
+Modifier
+    def __init__(self, mode='PVP', difficulty='easy'):
+Méthode spéciale appelée automatiquement quand on crée un objet Game.
+
+mode : mode de jeu choisi (PVP pour joueur contre joueur, PVC pour joueur contre ordinateur).
+
+difficulty : niveau de l’IA (easy ou hard).
+
+python
+Copier
+Modifier
+        self.grid = [[0] * GRID_COLS for _ in range(GRID_ROWS)]
+Crée une grille vide : une liste de 6 lignes, chaque ligne contient 7 zéros (0).
+
+0 = vide, 1 = jeton du joueur 1 (rouge), 2 = jeton du joueur 2 (jaune ou IA).
+
+python
+Copier
+Modifier
+        self.current_player = 1
+Le joueur 1 commence toujours (rouge).
+
+python
+Copier
+Modifier
+        self.game_over = False
+Indique si la partie est terminée (victoire ou match nul).
+
+python
+Copier
+Modifier
+        self.winner = None
+Sera 1, 2 ou None selon le gagnant.
+
+python
+Copier
+Modifier
+        self.mode = mode
+        self.difficulty = difficulty
+On garde le mode et la difficulté choisis.
+
+python
+Copier
+Modifier
+        self.ai_thinking = False
+Indique si l’ordinateur est en train de réfléchir (utile pour éviter les clics pendant qu’il joue).
+
+8.2. Méthode pour dessiner la grille et les jetons
+python
+Copier
+Modifier
+    def draw_grid(self):
+Méthode pour dessiner la grille sur l’écran.
+
+python
+Copier
+Modifier
+        for row in range(GRID_ROWS):
+            for col in range(GRID_COLS):
+Double boucle pour parcourir chaque case de la grille.
+
+python
+Copier
+Modifier
+                pygame.draw.rect(screen, BLUE, (GRID_OFFSET_X + col * CELL_SIZE, GRID_OFFSET_Y + row * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+Dessine un rectangle bleu pour représenter la case.
+
+La position est calculée avec GRID_OFFSET_X et GRID_OFFSET_Y pour bien positionner la grille.
+
+python
+Copier
+Modifier
+                value = self.grid[row][col]
+On récupère la valeur de la cellule : 0, 1 ou 2.
+
+python
+Copier
+Modifier
+                if value == 0:
+                    color = WHITE
+                elif value == 1:
+                    color = RED
+                else:
+                    color = YELLOW
+On choisit la couleur du jeton à dessiner selon le joueur.
+
+python
+Copier
+Modifier
+                pygame.draw.circle(screen, color, 
+                                   (GRID_OFFSET_X + col * CELL_SIZE + CELL_SIZE // 2, 
+                                    GRID_OFFSET_Y + row * CELL_SIZE + CELL_SIZE // 2), RADIUS)
+Dessine un cercle (le jeton) au centre de la cellule.
+
+8.3. Méthode pour dessiner les infos au-dessus de la grille
+python
+Copier
+Modifier
+    def draw_info(self):
+Affiche le texte (tour du joueur, fin de partie, etc.)
+
+python
+Copier
+Modifier
+        if self.game_over:
+Si la partie est terminée :
+
+python
+Copier
+Modifier
+            if self.winner:
+                msg = f"Joueur {self.winner} a gagné !"
+            else:
+                msg = "Match nul !"
+Affiche le gagnant ou le message de match nul.
+
+python
+Copier
+Modifier
+        else:
+            msg = f"Tour du joueur {self.current_player}"
+Sinon, affiche à qui est le tour.
+
+python
+Copier
+Modifier
+        text = font.render(msg, True, BLACK)
+        screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, 20))
+Centre le texte horizontalement, à 20 pixels du haut.
+
+8.4. Méthode pour jouer un coup
+python
+Copier
+Modifier
+    def play_move(self, col):
+Tente de jouer un jeton dans la colonne col.
+
+python
+Copier
+Modifier
+        if self.game_over or not self.is_valid_move(col):
+            return
+Si la partie est finie ou que le coup est invalide (colonne pleine), on ne fait rien.
+
+python
+Copier
+Modifier
+        for row in reversed(range(GRID_ROWS)):
+            if self.grid[row][col] == 0:
+                self.grid[row][col] = self.current_player
+                break
+On cherche la première case vide en partant du bas, et on y place le jeton du joueur courant.
+
+python
+Copier
+Modifier
+        if self.check_win(self.current_player):
+            self.game_over = True
+            self.winner = self.current_player
+Si ce coup fait gagner le joueur, on met fin à la partie et on enregistre le gagnant.
+
+python
+Copier
+Modifier
+        elif all(self.grid[0][c] != 0 for c in range(GRID_COLS)):
+            self.game_over = True
+Si la grille est pleine (aucun 0 en haut), c’est un match nul.
+
+python
+Copier
+Modifier
+        else:
+            self.current_player = 2 if self.current_player == 1 else 1
+Sinon, on change de joueur : si c’était 1, ça devient 2, et inversement.
+
+8.5. Méthode pour vérifier si un coup est valide
+python
+Copier
+Modifier
+    def is_valid_move(self, col):
+        return self.grid[0][col] == 0
+Un coup est valide si la case du haut de la colonne est vide (donc il reste de la place).
+
+8.6. Méthode check_win – vérifier si un joueur a gagné
+python
+Copier
+Modifier
+    def check_win(self, player):
+Cette méthode vérifie si le joueur donné (1 ou 2) a aligné 4 jetons à la suite dans la grille.
+
+python
+Copier
+Modifier
+        for row in range(GRID_ROWS):
+            for col in range(GRID_COLS):
+On parcourt toutes les cases de la grille.
+
+python
+Copier
+Modifier
+                if self.grid[row][col] == player:
+Si la case appartient au joueur…
+
+python
+Copier
+Modifier
+                    if (self.check_direction(row, col, 0, 1, player) or  # horizontal
+                        self.check_direction(row, col, 1, 0, player) or  # vertical
+                        self.check_direction(row, col, 1, 1, player) or  # diagonale /
+                        self.check_direction(row, col, 1, -1, player)):  # diagonale \
+                        return True
+On vérifie 4 directions différentes à partir de cette case :
+
+(0, 1) = vers la droite (horizontal)
+
+(1, 0) = vers le bas (vertical)
+
+(1, 1) = diagonale descendante
+
+(1, -1) = diagonale montante
+
+Si dans l’une de ces directions il y a 4 jetons consécutifs du joueur → victoire.
+
+python
+Copier
+Modifier
+        return False
+Si aucune victoire trouvée → retourne False.
+
+8.7. Méthode check_direction – aide pour check_win
+python
+Copier
+Modifier
+    def check_direction(self, row, col, delta_row, delta_col, player):
+Vérifie si le joueur a 4 jetons alignés à partir de la case (row, col) dans une direction donnée.
+
+python
+Copier
+Modifier
+        for i in range(4):
+            r = row + i * delta_row
+            c = col + i * delta_col
+Calcule la position de la i-ème case dans la direction.
+
+python
+Copier
+Modifier
+            if not (0 <= r < GRID_ROWS and 0 <= c < GRID_COLS):
+                return False
+Si on sort de la grille, ce n’est pas un alignement possible.
+
+python
+Copier
+Modifier
+            if self.grid[r][c] != player:
+                return False
+Si l’une des cases ne contient pas un jeton du joueur → pas d’alignement.
+
+python
+Copier
+Modifier
+        return True
+Si toutes les 4 cases sont correctes → c’est un alignement !
+
+8.8. Méthode ai_move_easy – IA facile (choix aléatoire)
+python
+Copier
+Modifier
+    def ai_move_easy(self):
+Méthode pour faire jouer l’ordinateur en mode facile.
+
+python
+Copier
+Modifier
+        valid_cols = [c for c in range(GRID_COLS) if self.is_valid_move(c)]
+On crée une liste de colonnes disponibles (pas pleines).
+
+python
+Copier
+Modifier
+        if valid_cols:
+            return random.choice(valid_cols)
+Si au moins une colonne est disponible, on en choisit une au hasard.
+
+8.9. Méthode ai_move_hard – IA difficile (simule les coups)
+python
+Copier
+Modifier
+    def ai_move_hard(self):
+IA plus intelligente qui essaie de gagner ou de bloquer l’adversaire.
+
+python
+Copier
+Modifier
+        for col in range(GRID_COLS):
+On teste chaque colonne une par une.
+
+python
+Copier
+Modifier
+            if self.is_valid_move(col):
+Si la colonne est disponible…
+
+a) L'IA teste si elle peut gagner tout de suite
+python
+Copier
+Modifier
+                temp_grid = [row[:] for row in self.grid]
+On copie la grille pour faire des essais sans modifier la vraie grille.
+
+python
+Copier
+Modifier
+                for row in reversed(range(GRID_ROWS)):
+                    if temp_grid[row][col] == 0:
+                        temp_grid[row][col] = 2
+                        break
+On place un jeton virtuel du joueur 2 (IA) dans la colonne.
+
+python
+Copier
+Modifier
+                if self.check_win_simulated(temp_grid, 2):
+                    return col
+Si ce coup permet à l’IA de gagner → on choisit cette colonne.
+
+b) L'IA teste si le joueur peut gagner au prochain tour
+python
+Copier
+Modifier
+        for col in range(GRID_COLS):
+            if self.is_valid_move(col):
+                temp_grid = [row[:] for row in self.grid]
+                for row in reversed(range(GRID_ROWS)):
+                    if temp_grid[row][col] == 0:
+                        temp_grid[row][col] = 1
+                        break
+                if self.check_win_simulated(temp_grid, 1):
+                    return col
+Si le joueur 1 (adversaire) peut gagner, l’IA bloque.
+
+c) Sinon, elle joue comme l'IA facile
+python
+Copier
+Modifier
+        return self.ai_move_easy()
+8.10. Méthode check_win_simulated – comme check_win, mais sur une grille temporaire
+python
+Copier
+Modifier
+    def check_win_simulated(self, grid, player):
+Simule une victoire sur une grille temporaire.
+
+python
+Copier
+Modifier
+        for row in range(GRID_ROWS):
+            for col in range(GRID_COLS):
+                if grid[row][col] == player:
+                    if (self.check_direction_simulated(grid, row, col, 0, 1, player) or
+                        self.check_direction_simulated(grid, row, col, 1, 0, player) or
+                        self.check_direction_simulated(grid, row, col, 1, 1, player) or
+                        self.check_direction_simulated(grid, row, col, 1, -1, player)):
+                        return True
+        return False
+Même logique que check_win, mais sur une grille passée en paramètre.
+
+8.11. Méthode check_direction_simulated
+python
+Copier
+Modifier
+    def check_direction_simulated(self, grid, row, col, delta_row, delta_col, player):
+        for i in range(4):
+            r = row + i * delta_row
+            c = col + i * delta_col
+            if not (0 <= r < GRID_ROWS and 0 <= c < GRID_COLS):
+                return False
+            if grid[r][c] != player:
+                return False
+        return True
+Exactement comme check_direction, mais avec une grille simulée.
